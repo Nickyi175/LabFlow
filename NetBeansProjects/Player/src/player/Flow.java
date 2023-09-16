@@ -67,12 +67,12 @@ public class Flow {
             try {
                 FileInput = new FileInputStream(pls);
                 ObjInput = new ObjectInputStream(FileInput);
-                File tmp;
-                while ((tmp = (File) ObjInput.readObject()) == null) {
-                    ArregloCanciones.add(tmp);
+                File file;
+                while ((file = (File) ObjInput.readObject()) == null) {
+                    ArregloCanciones.add(file);
                 }
 
-                if ((tmp = (File) ObjInput.readObject()) == null) {
+                if ((file = (File) ObjInput.readObject()) == null) {
                     ArregloCanciones.isEmpty();
                 }
                 ObjInput.close();
