@@ -1,0 +1,363 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package player;
+
+import jaco.mp3.player.MP3Player;
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author tomea
+ */
+public class FlowFrame extends javax.swing.JFrame {
+  boolean playing = false;
+    String dataPath = "data.flw";
+    String musicPath = "";
+    long songSeek = 0;
+    String currentSongName = "";
+    MP3Player songPlayer;
+
+    public FlowFrame() {
+        initComponents();
+        try {
+            // Verificar que archivo de guardado de datos exista
+            File data = new File("data.flw");
+
+            removeAllSongs();
+            if (!data.exists()) {
+                data.createNewFile();
+                RandomAccessFile rfdata = new RandomAccessFile(data, "rw");
+                rfdata.writeUTF("");
+                rfdata.writeLong(0);
+                rfdata.writeUTF("");
+                rfdata.close();
+
+                jLabel1.setText("NOT PLAYING");
+                setAllBtns(false);
+
+            } else {
+                RandomAccessFile rfdata = new RandomAccessFile(data, "rw");
+                rfdata.seek(0);
+                musicPath = rfdata.readUTF();
+                songSeek = rfdata.readLong();
+                currentSongName = rfdata.readUTF();
+                loadSongs();
+                playLastSong();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+     private void updateData(String musicPath, long songSeek, String songName) {
+        try {
+            System.out.println("Writing to disk...");
+            RandomAccessFile rfdata = new RandomAccessFile(dataPath, "rw");
+            rfdata.writeUTF(musicPath);
+            rfdata.writeLong(songSeek);
+            rfdata.writeUTF(songName);
+            rfdata.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private ArrayList<String> getSongNamesFromPath(String musicPath) {
+        if (musicPath.equals("")) {
+            return new ArrayList<String>();
+        }
+
+        File folder = new File(musicPath);
+        ArrayList<String> songs = new ArrayList<>();
+        for (File f : folder.listFiles()) {
+            if (f.getName().endsWith(".mp3")) {
+                songs.add(f.getName().replace(".mp3", ""));
+            }
+        }
+
+        return songs;
+    }
+
+    private void setAllBtns(boolean enabled) {
+        play.setEnabled(enabled);
+
+    }
+
+    private void playLastSong() {
+        if (currentSongName.equals("")) {
+            System.out.println("Ultima cancion es empty");
+            jLabel1.setText("NOT PLAYING");
+            setAllBtns(false);
+        } else {
+            System.out.println("Buscando ultima cancion...");
+            System.out.println(currentSongName);
+            boolean found = false;
+            for (int i = 0; i < jList1.getModel().getSize(); i++) {
+                String n = jList1.getModel().getElementAt(i);
+                System.out.println(n);
+                if (n.equals(currentSongName)) {
+                    System.out.println("Se encontro ultima canciones reproducida");
+                    String path = musicPath + File.separator + currentSongName + ".mp3";
+                    songPlayer = new MP3Player(new File(path));
+                    jLabel1.setText(currentSongName);
+                    playing = false;
+                    play.setText("PLAY");
+                    setAllBtns(true);
+                    found = true;
+                    continue;
+                }
+
+                if (found) {
+                    String name = jList1.getModel().getElementAt(i);
+                    String path = musicPath + File.separator + name + ".mp3";
+                    songPlayer.addToPlayList(new File(path));
+
+                }
+            }
+        }
+    }
+
+    private void loadSongs() {
+        System.out.println("Cargando todas las canciones...");
+        ArrayList<String> songs = getSongNamesFromPath(musicPath);
+
+        jList1.removeAll();
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String song : songs) {
+            model.addElement(song);
+        }
+        jList1.setModel(model);
+
+        setAllBtns(false);
+        jLabel1.setText("NOT PLAYING");
+
+    }
+
+    private void removeAllSongs() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        jList1.setModel(model);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        play = new javax.swing.JButton();
+        select = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        add = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(jList1);
+
+        play.setText("Play");
+        play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playActionPerformed(evt);
+            }
+        });
+
+        select.setText("Select");
+        select.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("jLabel1");
+
+        add.setText("Add");
+        add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(160, 160, 160)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(103, 103, 103)
+                                .addComponent(play)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(select)))
+                        .addGap(68, 68, 68)
+                        .addComponent(add))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(317, 317, 317)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(71, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(58, 58, 58)
+                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(62, 62, 62)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(42, 42, 42))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(add)
+                        .addGap(59, 59, 59)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(play)
+                    .addComponent(select))
+                .addContainerGap(72, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+//    private void playSong(String songName) {
+//        String path = musicPath + File.separator + songName + ".mp3";
+//
+//        if (songPlayer != null) {
+//            songPlayer.stop();
+//        }
+//        songPlayer = new MP3Player(new File(path));
+//        songPlayer.play();
+//        playing = true;
+//        play.setText("PAUSE");
+//    }
+    private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
+        if (playing) {
+            playing = false;
+            play.setText("PLAY");
+            songPlayer.pause();
+        } else {
+            playing = true;
+            play.setText("PAUSE");
+            songPlayer.play();
+        }
+    }//GEN-LAST:event_playActionPerformed
+
+    private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
+        if (songPlayer != null) {
+            songPlayer.stop();
+        }
+
+        try {
+
+            JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.showOpenDialog(this);
+          
+
+            File selectedFolder = chooser.getSelectedFile();
+
+            if (selectedFolder == null) {
+                return;
+            }
+
+            // Dejar de reproducir musica
+            musicPath = selectedFolder.getCanonicalPath();
+            songSeek = 0;
+            currentSongName = "";
+            updateData(musicPath, songSeek, currentSongName);
+            loadSongs();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_addActionPerformed
+
+    private void selectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectActionPerformed
+        // TODO add your handling code here:
+        if (songPlayer != null) {
+            songPlayer.stop();
+        }
+
+        if (jList1.getSelectedValue() == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione primero una cancion para reproducir.");
+            return;
+        }
+        currentSongName = jList1.getSelectedValue();
+
+        updateData(musicPath, songSeek, currentSongName);
+
+        jLabel1.setText(currentSongName);
+        File songFile = new File(musicPath + File.separator + currentSongName + ".mp3");
+        songPlayer = new MP3Player(songFile);
+        songPlayer.play();
+        playing = true;
+        play.setText("PAUSE");
+        setAllBtns(true);
+
+        updateData(musicPath, songSeek, currentSongName);
+
+    }//GEN-LAST:event_selectActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FlowFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FlowFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FlowFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FlowFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FlowFrame().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton add;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton play;
+    private javax.swing.JButton select;
+    // End of variables declaration//GEN-END:variables
+}
