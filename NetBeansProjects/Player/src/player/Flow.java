@@ -11,103 +11,79 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 public class Flow {
-    
-    JFileChooser ArchivoSeleccionado=new JFileChooser();
-    ArrayList ArregloCanciones=new ArrayList();
-    
-    void addSong(JFrame frame){
-    
+
+    FileOutputStream FileOutput;
+    ObjectOutputStream ObjOutput;
+    FileInputStream FileInput;
+    ObjectInputStream ObjInput;
+    JFileChooser ArchivoSeleccionado = new JFileChooser();
+    ArrayList ArregloCanciones = new ArrayList();
+
+    public void addSong(JFrame frame) {
         ArchivoSeleccionado.setMultiSelectionEnabled(true);
-        int fileValid=ArchivoSeleccionado.showOpenDialog(frame);
-        
-        if (fileValid==javax.swing.JFileChooser.CANCEL_OPTION) {
+        int fileValid = ArchivoSeleccionado.showOpenDialog(frame);
+
+        if (fileValid == javax.swing.JFileChooser.CANCEL_OPTION) {
             return;
-            
-        } 
-        
-        else if(fileValid==javax.swing.JFileChooser.APPROVE_OPTION) {
-            
-            File[] file=ArchivoSeleccionado.getSelectedFiles();
+
+        } else if (fileValid == javax.swing.JFileChooser.APPROVE_OPTION) {
+
+            File[] file = ArchivoSeleccionado.getSelectedFiles();
             ArregloCanciones.addAll(Arrays.asList(file));
-            
         }
-        
     }
+
     
-    ArrayList getArregloCanciones(){
-        return ArregloCanciones;
-    }
-    
-    
-    FileOutputStream fos;
-    ObjectOutputStream oos;
-    
-    
-    public void GuardarCanciones(JFrame frame){
-    
+
+    public void SaveSong(JFrame frame) {
         ArchivoSeleccionado.setMultiSelectionEnabled(false);
-        
-        int Valid=ArchivoSeleccionado.showSaveDialog(frame);
-        
-        if (Valid==javax.swing.JFileChooser.CANCEL_OPTION) {
-            
+        int Valid = ArchivoSeleccionado.showSaveDialog(frame);
+
+        if (Valid == javax.swing.JFileChooser.CANCEL_OPTION) {
             return;
-            
-        } 
-        
-        else if(Valid==javax.swing.JFileChooser.APPROVE_OPTION) {
-            
-            File pls=ArchivoSeleccionado.getSelectedFile();
-            
+        } else if (Valid == javax.swing.JFileChooser.APPROVE_OPTION) {
+            File pls = ArchivoSeleccionado.getSelectedFile();
             try {
-                   fos=new FileOutputStream(pls + ".tgr");
-                   oos=new ObjectOutputStream(fos);
-                   
-                   for(int i=0;i<ArregloCanciones.size();i++){
-                          File tmp=(File) ArregloCanciones.get(i);
-                          oos.writeObject(tmp);}
-                   oos.close();
-            }catch (Exception e) {  
-            }
-            
-        }
-    }
-    
-    FileInputStream hola;
-    ObjectInputStream hola2;
-    
-    public void Abrir(JFrame frame){
-        ArchivoSeleccionado.setMultiSelectionEnabled(false);
-        int Valid=ArchivoSeleccionado.showOpenDialog(frame);
-        
-        if (Valid==javax.swing.JFileChooser.CANCEL_OPTION) {
-            
-            File pls=ArchivoSeleccionado.getSelectedFile();
-            
-            try {
-                   hola=new FileInputStream(pls);
-                   hola2=new ObjectInputStream(hola);
-                   File tmp;
-                   
-                   while((tmp=(File) hola2.readObject())==null)
-                   {
-                       ArregloCanciones.add(tmp);
-                       
-                   }
-                   
-                   if((tmp=(File) hola2.readObject())==null)
-                      {
-                          ArregloCanciones.isEmpty();
-                          
-                      }
-                   hola2.close();
-                
+                FileOutput = new FileOutputStream(pls + ".tgr");
+                ObjOutput = new ObjectOutputStream(FileOutput);
+
+                for (int i = 0; i < ArregloCanciones.size(); i++) {
+                    File tmp = (File) ArregloCanciones.get(i);
+                    ObjOutput.writeObject(tmp);
+                }
+                ObjOutput.close();
             } catch (Exception e) {
             }
-            
+
+        }
+    }
+
+    public void OpenSong(JFrame frame) {
+        ArchivoSeleccionado.setMultiSelectionEnabled(false);
+        int Valid = ArchivoSeleccionado.showOpenDialog(frame);
+
+        if (Valid == javax.swing.JFileChooser.CANCEL_OPTION) {
+            File pls = ArchivoSeleccionado.getSelectedFile();
+            try {
+                FileInput = new FileInputStream(pls);
+                ObjInput = new ObjectInputStream(FileInput);
+                File tmp;
+                while ((tmp = (File) ObjInput.readObject()) == null) {
+                    ArregloCanciones.add(tmp);
+                }
+
+                if ((tmp = (File) ObjInput.readObject()) == null) {
+                    ArregloCanciones.isEmpty();
+                }
+                ObjInput.close();
+
+            } catch (Exception e) {
+            }
         } else {
         }
-        
     }
     
+    ArrayList getArregloCanciones() {
+        return ArregloCanciones;
+    }
 }
